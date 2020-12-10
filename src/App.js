@@ -1,5 +1,11 @@
 import { Component } from 'react';
 
+import Statistics from './components/Statistics';
+import FeedbackOptions from './components/FeedbackOptions';
+import Section from './components/Section';
+import Notification from './components/Notification';
+import Container from './components/Container';
+
 export default class App extends Component {
   state = { good: 0, neutral: 0, bad: 0 };
 
@@ -12,41 +18,33 @@ export default class App extends Component {
       : 0;
   };
 
-  onLeaveFeedback = e => {
-    const feedbackType = e.currentTarget.innerText;
+  onLeaveFeedback = ev => {
+    const feedbackType = ev.currentTarget.innerText.toLowerCase();
     this.setState(prevState => ({
       [feedbackType]: prevState[feedbackType] + 1,
     }));
   };
   render() {
     return (
-      <>
-        <h2>Please leave feedback</h2>
-        {Object.keys(this.state).map(el => {
-          return (
-            <button key={el} type="button" onClick={this.onLeaveFeedback}>
-              {el}
-            </button>
-          );
-        })}
-        <h3>Statistics</h3>
-        {Object.keys(this.state).map(el => {
-          return (
-            <p key={el}>
-              <span>{el}: </span>
-              <span>{this.state[el]} </span>
-            </p>
-          );
-        })}
-        <p>
-          <span>Total: </span>
-          <span>{this.countTotalFeedback()}</span>
-        </p>
-        <p>
-          <span>Positive feedbacks: </span>
-          <span>{this.countPositiveFeedbackPercentage()} %</span>
-        </p>
-      </>
+      <Container>
+        <Section title="Please leave feedback">
+          <FeedbackOptions
+            options={this.state}
+            onLeaveFeedback={ev => this.onLeaveFeedback(ev)}
+          />
+        </Section>
+        {this.countTotalFeedback() !== 0 ? (
+          <Section title="Statistics">
+            <Statistics
+              options={this.state}
+              total={this.countTotalFeedback()}
+              positivePercentage={this.countPositiveFeedbackPercentage()}
+            />
+          </Section>
+        ) : (
+          <Notification message="No feedback given" />
+        )}
+      </Container>
     );
   }
 }
